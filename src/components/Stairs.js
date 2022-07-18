@@ -1,23 +1,33 @@
-import React, { useEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef, useContext, useState } from "react";
 import { useGLTF } from "@react-three/drei";
-import { useControls } from "leva";
+import * as THREE from "three";
+import { StairsContext } from "./Viewer";
 
-export default function Model({ floorNum, ...props }) {
+export default function Stairs({ position }) {
+    const { handleStairs } = useContext(StairsContext);
     const group = useRef();
-    const { size } = useControls(
-        `Floor ${floorNum}`,
-        {
-            size: {
-                value: "medium",
-                options: ["small", "medium", "large"],
-            },
-        },
-        { collapsed: true }
-    );
     const { nodes, materials } = useGLTF("/models/stairs.glb");
+    // const boundingBox = useMemo(() => new THREE.Box3(), []);
+    useLayoutEffect(() => {
+        // compute bounding box
+        const box = new THREE.Box3();
+        group.current.geometry.computeBoundingBox();
+        box.copy(group.current.geometry.boundingBox).applyMatrix4(
+            group.current.matrixWorld
+        );
+        // set bounding box size and center position
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+        //send to parent
+        handleStairs(size, center);
+    }, []);
+
     return (
-        <group ref={group} {...props} dispose={null}>
+        <group position={position} dispose={null}>
             <mesh
+                ref={group}
                 geometry={nodes.Cube.geometry}
                 material={materials.Material}
             ></mesh>

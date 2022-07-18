@@ -2,9 +2,11 @@ import Result from "./components/Result";
 
 function App() {
     return (
-        <>
-            <Result />
-        </>
+        <div className="h-screen">
+            <main style={{ height: "calc(100vh - 2.75rem)" }}>
+                <Result />
+            </main>
+        </div>
     );
 }
 

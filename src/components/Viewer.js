@@ -1,39 +1,95 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { useRef, createContext, useState, useContext } from "react";
+import { OrbitControls, Stage } from "@react-three/drei";
 import { useControls } from "leva";
-import { DoubleSide } from "three";
 import StairGroup from "./StairGroup";
 
-export default function Viewer() {
-    // we want the camera function to reposition when more levels are added if out frame
-    //height of my stairs model is 2 units, but use THREE.box3 to find out size of any other mesh
-    const { numFloors } = useControls({
-        numFloors: {
-            value: 1,
-            min: 1,
-            max: 5,
-            step: 1,
-        },
+export const StairsContext = createContext({
+    stairsCenter: 100,
+    stairsSize: 100,
+    handleStairs: () => {},
+});
+
+export const ControlsContext = createContext({
+    numFloors: 99,
+    floorInfo: {
+        xSize: { 99: 99 },
+        ySize: { 99: 99 },
+    },
+});
+export default function Viewer({
+    value,
+    shadows,
+    contactShadow,
+    autoRotate,
+    environment,
+    preset,
+    intensity,
+}) {
+    const [stairsCenter, setStairsCenter] = useState({
+        x: 0,
+        y: 0,
+        z: 0,
     });
+    const [stairsSize, setStairsSize] = useState({
+        x: 0,
+        y: 0,
+        z: 0,
+    });
+    // const [loading, setLoading] = useState(true);
+
+    const handleStairs = (size, center) => {
+        setStairsSize(size);
+        setStairsCenter(center);
+    };
+
+    const stairsValue = {
+        stairsCenter: stairsCenter,
+        stairsSize: stairsSize,
+        handleStairs: handleStairs,
+    };
+
+    const controlsRef = useRef();
+
+    // const { numFloors } = useControls({
+    //     numFloors: {
+    //         value: 1,
+    //         min: 1,
+    //         max: 8,
+    //         step: 1,
+    //     },
+    // });
+
+    const { floors } = useControls({
+        floors: true,
+    });
+
     return (
-        <Canvas camera={{ position: [0, 10, 10] }}>
+        <Canvas
+            // gl={{ preserveDrawingBuffer: true }}
+            shadows
+            camera={{ position: [0, 1, 1], fov: 80 }}
+        >
             <ambientLight intensity={0.5} />
-            <OrbitControls />
-            <hemisphereLight
-                intensity={0.125}
-                color="#8040df"
-                groundColor="red"
-            />
-            <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-                <planeBufferGeometry args={[10, 10]} />
-                <meshBasicMaterial
-                    polygonOffset={true}
-                    polygonOffsetFactor={-0.1}
-                    color="green"
-                    side={DoubleSide}
-                />
-            </mesh>
-            <StairGroup numFloors={numFloors} />
+            <OrbitControls ref={controlsRef} />
+            <Stage
+                controls={controlsRef}
+                preset={preset}
+                intensity={intensity}
+                contactShadow={contactShadow}
+                shadows
+                adjustCamera
+                environment={environment}
+            >
+                <StairsContext.Provider value={stairsValue}>
+                    <ControlsContext.Provider value={value}>
+                        <StairGroup
+                            floors={floors}
+                            numFloors={value.numFloors}
+                        />
+                    </ControlsContext.Provider>
+                </StairsContext.Provider>
+            </Stage>
         </Canvas>
     );
 }
