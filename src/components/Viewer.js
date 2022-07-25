@@ -1,6 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { useRef, createContext, useState, useContext } from "react";
-import { OrbitControls, Stage } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
+import CustomStage from "./CustomStage";
 import { useControls } from "leva";
 import StairGroup from "./StairGroup";
 
@@ -14,8 +15,10 @@ export const ControlsContext = createContext({
     numFloors: 99,
     floorInfo: {
         xSize: { 99: 99 },
-        ySize: { 99: 99 },
+        windowsFreq: { 99: 99 },
+        balcony: { 99: true },
     },
+    setFloorInfo: () => "default",
 });
 export default function Viewer({
     value,
@@ -72,7 +75,7 @@ export default function Viewer({
         >
             <ambientLight intensity={0.5} />
             <OrbitControls ref={controlsRef} />
-            <Stage
+            <CustomStage
                 controls={controlsRef}
                 preset={preset}
                 intensity={intensity}
@@ -89,7 +92,7 @@ export default function Viewer({
                         />
                     </ControlsContext.Provider>
                 </StairsContext.Provider>
-            </Stage>
+            </CustomStage>
         </Canvas>
     );
 }

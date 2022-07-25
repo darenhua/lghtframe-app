@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Viewer from "./Viewer";
-import Controls from "./controls/Controls";
+import Controls from "./Controls";
 
 export default function Result() {
     // Result function is a wrapper around the Canvas function
@@ -13,12 +13,14 @@ export default function Result() {
     };
     const [numFloors, setNumFloors] = useState(1);
     const [floorInfo, setFloorInfo] = useState({
-        xSize: {},
-        ySize: {},
+        xSize: { 0: 0, 1: 0 },
+        windowsFreq: {},
+        balcony: { 2: false, 3: false },
     });
     const controlsValue = {
         numFloors: numFloors,
         floorInfo: floorInfo,
+        setFloorInfo: setFloorInfo,
     };
     return (
         <div className="flex h-full overflow-hidden">

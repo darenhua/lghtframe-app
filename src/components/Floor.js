@@ -1,20 +1,29 @@
-import { useContext } from "react";
+import { useContext, useLayoutEffect } from "react";
 import Stairs from "./Stairs.js";
 import Room from "./Room.js";
 import { StairsContext } from "./Viewer";
+import { ControlsContext } from "./Viewer";
 
 export default function Floor({ floorNum, position, floors }) {
     const { stairsSize } = useContext(StairsContext);
-    console.log(floorNum);
     return (
         <group>
             <Stairs position={position} />;
             {floors && (
                 <group>
-                    <Room floorNum={floorNum} position={position} />
                     <Room
-                        floorNum={floorNum + 1}
-                        position={position.map((x) => x + stairsSize.y)}
+                        floorNum={floorNum * 2}
+                        stairsNum={floorNum}
+                        position={[position[0], position[1] * 1.5, position[2]]}
+                    />
+                    <Room
+                        floorNum={floorNum * 2 + 1}
+                        stairsNum={floorNum + 1}
+                        position={[
+                            position[0],
+                            position[1] * 1.5 + stairsSize.y,
+                            position[2],
+                        ]}
                     />
                 </group>
             )}
