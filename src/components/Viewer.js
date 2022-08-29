@@ -18,6 +18,7 @@ export const ControlsContext = createContext({
         windowsFreq: { 99: 99 },
         balcony: { 99: true },
     },
+    revealFrame: true,
     setFloorInfo: () => "default",
 });
 export default function Viewer({
@@ -71,6 +72,7 @@ export default function Viewer({
         <Canvas
             // gl={{ preserveDrawingBuffer: true }}
             shadows
+            frameloop="demand"
             camera={{ position: [0, 1, 1], fov: 80 }}
         >
             <ambientLight intensity={0.5} />

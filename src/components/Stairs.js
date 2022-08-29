@@ -27,12 +27,18 @@ export default function Stairs({ position }) {
     return (
         <group position={position} dispose={null}>
             <mesh
+                rotation-y={Math.PI / 2}
                 ref={group}
-                geometry={nodes.Cube.geometry}
-                material={materials.Material}
+                castShadow
+                receiveShadow
+                geometry={nodes.Object_2.geometry}
+                material={materials.Plastic}
+                // geometry={nodes.Cube.geometry}
+                // material={materials.Material}
             ></mesh>
         </group>
     );
 }
 
 useGLTF.preload("/models/stairs.glb");
+// useGLTF.preload("/models/stairs_old.glb");

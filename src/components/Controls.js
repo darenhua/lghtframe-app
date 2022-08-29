@@ -3,8 +3,19 @@ import { useEffect, useState } from "react";
 const Slider = ({ children, value, hFor, handleChange, id, ...props }) => {
     return (
         <>
-            <label htmlFor={id}>{children}</label>
-            <input {...props} id={id} value={value} onInput={handleChange} />
+            <label
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                htmlFor={id}
+            >
+                {children}
+            </label>
+            <input
+                className="w-6/12 appearance-none h-0.5 bg-grey rounded outline-none slider-thumb cursor-pointer"
+                {...props}
+                id={id}
+                value={value}
+                onInput={handleChange}
+            />
         </>
     );
 };
@@ -23,7 +34,9 @@ const CollapsedDiv = ({ collapsed, children, count }) => {
             <h2 className="">Floor {count + 1}</h2>
 
             <div
-                className={` ${isCollapsed ? "hidden" : "block"}`}
+                className={`transition-all  ${
+                    isCollapsed ? "hidden" : "block"
+                }`}
                 aria-expanded={isCollapsed}
             >
                 {children}
@@ -35,36 +48,35 @@ const CollapsedDiv = ({ collapsed, children, count }) => {
 export default function Controls({
     numFloors,
     floorInfo,
+    revealFrame,
     handleNumFloors,
     handleFloorInfo,
+    handleRevealFrame,
 }) {
     const floorsArr = new Array(numFloors).fill();
-    let possibleBalconies = {};
+    let possibleBalconies = { value: {}, balcSize: {} };
     for (let i = 0; i < numFloors * 2; i += 2) {
         let floor1 = i;
         let floor2 = i + 1;
-        console.log(
-            floor1,
-            floorInfo["xSize"][floor1 + 2],
-            floorInfo["xSize"][floor1]
-        );
+
         if (floorInfo["xSize"][floor1 + 2] + 2 < floorInfo["xSize"][floor1]) {
-            possibleBalconies[floor1 + 2] = true;
+            possibleBalconies.value[floor1 + 2] = true;
+            possibleBalconies.balcSize[floor1 + 2] =
+                floorInfo["xSize"][floor1] - floorInfo["xSize"][floor1 + 2];
         } else {
-            possibleBalconies[floor1 + 2] = false;
+            possibleBalconies.value[floor1 + 2] = false;
         }
         if (floorInfo["xSize"][floor2 + 2] + 2 < floorInfo["xSize"][floor2]) {
-            possibleBalconies[floor2 + 2] = true;
+            possibleBalconies.value[floor2 + 2] = true;
+            possibleBalconies.balcSize[floor2 + 2] =
+                floorInfo["xSize"][floor2] - floorInfo["xSize"][floor2 + 2];
         } else {
-            possibleBalconies[floor2 + 2] = false;
+            possibleBalconies.value[floor2 + 2] = false;
         }
     }
-
-    //PUT THAT USEEFFECT BULLSHIT INTO A CALLBACK. WHEN YOU CHANGE THE SLIDER THATS WHEN THE EFFECT TRIGGERS???
     return (
         <div className="flex flex-col p-12">
             <div>
-                {floorInfo.balcony ? "true" : "false"}
                 <Slider
                     value={numFloors}
                     type="range"
@@ -75,24 +87,33 @@ export default function Controls({
                     step="1"
                     handleChange={(e) => {
                         //for key in keys -> keys: [xSize, ySize, floors?, ...]
-                        handleNumFloors(parseInt(e.target.value, 10));
+                        const val = parseInt(e.target.value, 10);
+                        handleNumFloors(val);
                         let key = "xSize";
-                        let tempObj = floorInfo[key];
-                        let defaultVal = floorInfo[key][numFloors];
-
+                        let xSizes = {};
+                        for (let i = 0; i < val * 2; i += 2) {
+                            xSizes[i] = floorInfo.xSize[i] ?? 0;
+                            xSizes[i + 1] = floorInfo.xSize[i + 1] ?? 0;
+                        }
                         handleFloorInfo({
                             ...floorInfo,
-                            [key]: {
-                                ...tempObj,
-                                [numFloors * 2]: 0,
-                                [numFloors * 2 + 1]: 0,
-                            },
+                            [key]: xSizes,
                             balcony: possibleBalconies,
                         });
                     }}
                 >
                     <p className="select-none">Number of Floors {numFloors}</p>
                 </Slider>
+                <div>
+                    <label htmlFor="balcony">See the LGHTFrame!</label>
+                    <input
+                        type="checkbox"
+                        id="balcony"
+                        name="balcony"
+                        checked={revealFrame}
+                        onChange={() => handleRevealFrame(!revealFrame)}
+                    ></input>
+                </div>
             </div>
             {floorsArr.map((item, count) => (
                 <div className="w-full my-6 bg-red-300 relative" key={count}>
@@ -131,7 +152,7 @@ export default function Controls({
                             name="floorB"
                             min="0"
                             max="10"
-                            step=".1"
+                            step="1"
                             value={floorInfo["xSize"]?.[count * 2 + 1] ?? 0}
                             handleChange={(event) => {
                                 let key = "xSize";
@@ -179,13 +200,6 @@ export default function Controls({
                         >
                             Window Freq
                         </Slider>
-
-                        <label htmlFor="balcony">Balcony?</label>
-                        <input
-                            type="checkbox"
-                            id="balcony"
-                            name="balcony"
-                        ></input>
                     </CollapsedDiv>
                 </div>
             ))}

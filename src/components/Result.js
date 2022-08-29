@@ -12,13 +12,17 @@ export default function Result() {
         environment: "city", // ['', 'sunset', 'dawn', 'night', 'warehouse', 'forest', 'apartment', 'studio', 'city', 'park', 'lobby']
     };
     const [numFloors, setNumFloors] = useState(1);
+    const [revealFrame, setRevealFrame] = useState(false);
     const [floorInfo, setFloorInfo] = useState({
         xSize: { 0: 0, 1: 0 },
         windowsFreq: {},
-        balcony: { 2: false, 3: false },
+        balcony: {
+            value: { 2: false, 3: false },
+        },
     });
     const controlsValue = {
         numFloors: numFloors,
+        revealFrame: revealFrame,
         floorInfo: floorInfo,
         setFloorInfo: setFloorInfo,
     };
@@ -28,8 +32,10 @@ export default function Result() {
                 <Controls
                     numFloors={numFloors}
                     floorInfo={floorInfo}
+                    revealFrame={revealFrame}
                     handleNumFloors={(data) => setNumFloors(data)}
                     handleFloorInfo={(data) => setFloorInfo(data)}
+                    handleRevealFrame={(data) => setRevealFrame(data)}
                 />
             </div>
             <div className="w-8/12 h-full">
