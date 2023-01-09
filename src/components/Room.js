@@ -3,6 +3,7 @@ import { useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 import { StairsContext } from "./Viewer";
 import { ControlsContext } from "./Viewer";
+import Frame from "./Frame";
 
 export default function Room({ position, floorNum, stairsNum }) {
     const defaultSize = 0;
@@ -14,6 +15,7 @@ export default function Room({ position, floorNum, stairsNum }) {
         TextureLoader,
         "/TemplateGrid_normal.png"
     );
+
     const balcSize =
         floorInfo.balcony.value[floorNum - 2] &&
         floorInfo.balcony.balcSize[floorNum - 2];
@@ -29,9 +31,7 @@ export default function Room({ position, floorNum, stairsNum }) {
     //         ? stairsCenter.z - (stairsSize.z + size) / 2 + 0.975
     //         : (stairsSize.z + size) / 2 - stairsCenter.z - 0.5075;
     const balcZ =
-        floorNum % 2
-            ? stairsCenter.z - stairsSize.z - size - balcSize / 2 - 2.4
-            : -stairsCenter.z + stairsSize.z + size + balcSize / 2 + 2.4;
+        floorNum % 2 ? stairsSize.z : 3.6 + stairsSize.z + size + balcSize / 2;
 
     const allocateWindows = (windowSize = 2) => {
         const windowZStart =
@@ -61,6 +61,10 @@ export default function Room({ position, floorNum, stairsNum }) {
 
     return (
         <group>
+            <Frame
+                center={[stairsCenter.x, roomY, roomZ]}
+                size={[15, stairsSize.y, stairsSize.z + size]}
+            />
             <mesh position={[stairsCenter.x, roomY, roomZ]}>
                 <boxGeometry args={[15, stairsSize.y, stairsSize.z + size]} />
                 <meshStandardMaterial
@@ -74,7 +78,7 @@ export default function Room({ position, floorNum, stairsNum }) {
             </mesh>
             {floorInfo.balcony.value[floorNum - 2] && (
                 <mesh position={[stairsCenter.x, roomY, balcZ]}>
-                    <boxGeometry args={[15, stairsSize.y, balcSize - 1]} />
+                    <boxGeometry args={[15, stairsSize.y, balcSize]} />
                     <meshBasicMaterial color="green" />
                 </mesh>
             )}

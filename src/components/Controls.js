@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faCaretDown,
+    faEye,
+    faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 
 const Slider = ({ children, value, hFor, handleChange, id, ...props }) => {
+    const endgreen = value * 10;
+
+    const sliderGradient = {
+        backgroundImage: `linear-gradient(to right, #fff 0%, #fff ${endgreen}%, rgba(255, 255,255, 0) ${endgreen}%, rgba(255, 255,255, 0) 100%)`,
+    };
+
     return (
         <>
             <label
@@ -10,7 +22,8 @@ const Slider = ({ children, value, hFor, handleChange, id, ...props }) => {
                 {children}
             </label>
             <input
-                className="w-6/12 appearance-none h-0.5 bg-grey rounded outline-none slider-thumb cursor-pointer"
+                className="slider-style mb-6 transition-all slider-thumb cursor-pointer"
+                style={sliderGradient}
                 {...props}
                 id={id}
                 value={value}
@@ -20,21 +33,53 @@ const Slider = ({ children, value, hFor, handleChange, id, ...props }) => {
     );
 };
 
+const FloorSlider = ({ children, numFloors, handleChange }) => {
+    return (
+        <Slider
+            value={numFloors}
+            type="range"
+            id="numFloors"
+            name="numFloors"
+            min="0"
+            max="10"
+            step="1"
+            handleChange={handleChange}
+        >
+            {children}
+        </Slider>
+    );
+};
+
+const SliderDisplay = ({ numFloors, className, children }) => {
+    return (
+        <div className="select-none flex items-center justify-between">
+            <h3 className={`font-medium text-lg ${className}`}>{children}</h3>
+            <h3 className="w-20 pr-4 text-right bg-slate-700 rounded-md">
+                {numFloors}
+            </h3>
+        </div>
+    );
+};
+
 const CollapsedDiv = ({ collapsed, children, count }) => {
     const [isCollapsed, setIsCollapsed] = useState(collapsed);
 
     return (
-        <div className="relative select-none">
+        <div className="control-container relative select-none">
             <button
-                className="absolute top-0 right-0 block"
+                className={`absolute ${
+                    isCollapsed || "rotate-0"
+                } top-1 rotate-90 text-black transition-all hover:text-gray-300 right-4 block`}
                 onClick={() => setIsCollapsed(!isCollapsed)}
             >
-                {isCollapsed ? "Show" : "Hide"} content
+                <FontAwesomeIcon icon={faCaretDown} />
             </button>
-            <h2 className="">Floor {count + 1}</h2>
+            <h2 className="absolute top-1 left-4 block text-white font-medium">
+                Floor {count + 1}
+            </h2>
 
             <div
-                className={`transition-all  ${
+                className={`transition-all pt-6 ${
                     isCollapsed ? "hidden" : "block"
                 }`}
                 aria-expanded={isCollapsed}
@@ -54,41 +99,59 @@ export default function Controls({
     handleRevealFrame,
 }) {
     const floorsArr = new Array(numFloors).fill();
-    let possibleBalconies = { value: {}, balcSize: {} };
-    for (let i = 0; i < numFloors * 2; i += 2) {
-        let floor1 = i;
-        let floor2 = i + 1;
+    const findPossibleBalconies = (newFloorInfo) => {
+        console.log("logging balconies sizes");
+        let possibleBalconies = { value: {}, balcSize: {} };
+        for (let i = 0; i < numFloors * 2; i += 2) {
+            let floor1 = i;
+            let floor2 = i + 1;
 
-        if (floorInfo["xSize"][floor1 + 2] + 2 < floorInfo["xSize"][floor1]) {
-            possibleBalconies.value[floor1 + 2] = true;
-            possibleBalconies.balcSize[floor1 + 2] =
-                floorInfo["xSize"][floor1] - floorInfo["xSize"][floor1 + 2];
-        } else {
-            possibleBalconies.value[floor1 + 2] = false;
+            if (
+                newFloorInfo["xSize"][floor1 + 2] + 2 <
+                newFloorInfo["xSize"][floor1]
+            ) {
+                possibleBalconies.value[floor1 + 2] = true;
+                possibleBalconies.balcSize[floor1 + 2] =
+                    newFloorInfo["xSize"][floor1] -
+                    newFloorInfo["xSize"][floor1 + 2];
+            } else {
+                possibleBalconies.value[floor1 + 2] = false;
+            }
+            console.log(
+                "bsize1",
+                newFloorInfo["xSize"][floor1] -
+                    newFloorInfo["xSize"][floor1 + 2]
+            );
+            if (
+                newFloorInfo["xSize"][floor2 + 2] + 2 <
+                newFloorInfo["xSize"][floor2]
+            ) {
+                possibleBalconies.value[floor2 + 2] = true;
+                possibleBalconies.balcSize[floor2 + 2] =
+                    newFloorInfo["xSize"][floor2] -
+                    newFloorInfo["xSize"][floor2 + 2];
+            } else {
+                possibleBalconies.value[floor2 + 2] = false;
+            }
+            console.log(
+                "bsize2",
+                newFloorInfo["xSize"][floor2] -
+                    newFloorInfo["xSize"][floor2 + 2]
+            );
         }
-        if (floorInfo["xSize"][floor2 + 2] + 2 < floorInfo["xSize"][floor2]) {
-            possibleBalconies.value[floor2 + 2] = true;
-            possibleBalconies.balcSize[floor2 + 2] =
-                floorInfo["xSize"][floor2] - floorInfo["xSize"][floor2 + 2];
-        } else {
-            possibleBalconies.value[floor2 + 2] = false;
-        }
-    }
+        return possibleBalconies;
+    };
     return (
-        <div className="flex flex-col p-12">
-            <div>
-                <Slider
-                    value={numFloors}
-                    type="range"
-                    id="numFloors"
-                    name="numFloors"
-                    min="1"
-                    max="10"
-                    step="1"
+        <div className="flex flex-col p-6">
+            <div className="control-container">
+                <FloorSlider
+                    numFloors={numFloors}
                     handleChange={(e) => {
                         //for key in keys -> keys: [xSize, ySize, floors?, ...]
                         const val = parseInt(e.target.value, 10);
                         handleNumFloors(val);
+                        const possibleBalconies =
+                            findPossibleBalconies(floorInfo);
                         let key = "xSize";
                         let xSizes = {};
                         for (let i = 0; i < val * 2; i += 2) {
@@ -102,22 +165,29 @@ export default function Controls({
                         });
                     }}
                 >
-                    <p className="select-none">Number of Floors {numFloors}</p>
-                </Slider>
+                    <SliderDisplay className="text-white" numFloors={numFloors}>
+                        Number of Floors:
+                    </SliderDisplay>
+                </FloorSlider>
                 <div>
-                    <label htmlFor="balcony">See the LGHTFrame!</label>
-                    <input
-                        type="checkbox"
-                        id="balcony"
-                        name="balcony"
-                        checked={revealFrame}
-                        onChange={() => handleRevealFrame(!revealFrame)}
-                    ></input>
+                    <div
+                        className=""
+                        onClick={() => handleRevealFrame(!revealFrame)}
+                    >
+                        <label className="text-base font-bold mr-3 text-white select-none">
+                            See the LGHTFrame!
+                        </label>
+
+                        <FontAwesomeIcon
+                            className="transition-color text-black hover:text-gray-300"
+                            icon={revealFrame ? faEye : faEyeSlash}
+                        />
+                    </div>
                 </div>
             </div>
             {floorsArr.map((item, count) => (
-                <div className="w-full my-6 bg-red-300 relative" key={count}>
-                    <CollapsedDiv count={count} collapsed={true}>
+                <div className="w-full my-6 relative" key={count}>
+                    <CollapsedDiv count={count} collapsed={false}>
                         <Slider
                             type="range"
                             id="floorA"
@@ -129,7 +199,7 @@ export default function Controls({
                             handleChange={(event) => {
                                 let key = "xSize";
                                 let tempObj = floorInfo[key];
-                                handleFloorInfo({
+                                const newFloorInfo = {
                                     ...floorInfo,
                                     [key]: {
                                         ...tempObj,
@@ -138,13 +208,26 @@ export default function Controls({
                                             10
                                         ),
                                     },
+                                };
+                                const possibleBalconies =
+                                    findPossibleBalconies(newFloorInfo);
+                                console.log("inslider", event.target.value);
+                                handleFloorInfo({
+                                    ...newFloorInfo,
                                     balcony: possibleBalconies,
                                 });
                             }}
                         >
-                            Floor {count * 2}
+                            <SliderDisplay
+                                numFloors={JSON.stringify(
+                                    floorInfo["xSize"]?.[count * 2] ?? 0
+                                )}
+                                className="text-base"
+                            >
+                                Room {count * 2} Size:
+                            </SliderDisplay>
                         </Slider>
-                        {JSON.stringify(floorInfo["xSize"]?.[count * 2] ?? 0)}
+
                         <br />
                         <Slider
                             type="range"
@@ -157,7 +240,7 @@ export default function Controls({
                             handleChange={(event) => {
                                 let key = "xSize";
                                 let tempObj = floorInfo[key];
-                                handleFloorInfo({
+                                const newFloorInfo = {
                                     ...floorInfo,
                                     [key]: {
                                         ...tempObj,
@@ -166,15 +249,27 @@ export default function Controls({
                                             10
                                         ),
                                     },
+                                };
+                                const possibleBalconies =
+                                    findPossibleBalconies(newFloorInfo);
+                                console.log("inslider", event.target.value);
+
+                                handleFloorInfo({
+                                    ...newFloorInfo,
                                     balcony: possibleBalconies,
                                 });
                             }}
                         >
-                            Floor {count * 2 + 1}
+                            <SliderDisplay
+                                numFloors={JSON.stringify(
+                                    floorInfo["xSize"]?.[count * 2 + 1] ?? 0
+                                )}
+                                className="text-base"
+                            >
+                                Room {count * 2 + 1} Size:
+                            </SliderDisplay>{" "}
                         </Slider>
-                        {JSON.stringify(
-                            floorInfo["xSize"]?.[count * 2 + 1] ?? 0
-                        )}
+
                         <Slider
                             type="range"
                             id="windowFreq"

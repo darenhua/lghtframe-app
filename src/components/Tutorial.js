@@ -14,6 +14,7 @@ function GridItem({ src, alt, animate, children }) {
         </div>
     );
 }
+
 export default function Tutorial({ handleTutorial }) {
     const gridItems = [
         {

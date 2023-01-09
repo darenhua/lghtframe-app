@@ -20,6 +20,7 @@ export default function Result() {
             value: { 2: false, 3: false },
         },
     });
+
     const controlsValue = {
         numFloors: numFloors,
         revealFrame: revealFrame,
@@ -28,7 +29,7 @@ export default function Result() {
     };
     return (
         <div className="flex h-full overflow-hidden">
-            <div className="w-4/12 h-full overflow-auto bg-indigo-300">
+            <div className="w-4/12 h-full overflow-auto bg-slate-900">
                 <Controls
                     numFloors={numFloors}
                     floorInfo={floorInfo}
