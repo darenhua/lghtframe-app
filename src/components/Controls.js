@@ -93,6 +93,7 @@ const CollapsedDiv = ({ collapsed, children, count }) => {
 export default function Controls({
     numFloors,
     floorInfo,
+    canvas,
     revealFrame,
     handleNumFloors,
     handleFloorInfo,
@@ -117,11 +118,6 @@ export default function Controls({
             } else {
                 possibleBalconies.value[floor1 + 2] = false;
             }
-            console.log(
-                "bsize1",
-                newFloorInfo["xSize"][floor1] -
-                    newFloorInfo["xSize"][floor1 + 2]
-            );
             if (
                 newFloorInfo["xSize"][floor2 + 2] + 2 <
                 newFloorInfo["xSize"][floor2]
@@ -141,6 +137,7 @@ export default function Controls({
         }
         return possibleBalconies;
     };
+
     return (
         <div className="flex flex-col p-6">
             <div className="control-container">
@@ -179,10 +176,34 @@ export default function Controls({
                         </label>
 
                         <FontAwesomeIcon
-                            className="transition-color text-black hover:text-gray-300"
+                            className={`transition-color text-black hover:text-gray-300 ${
+                                revealFrame && "text-white"
+                            }`}
                             icon={revealFrame ? faEye : faEyeSlash}
                         />
                     </div>
+                </div>
+                <div className="flex mt-2 items-center">
+                    <h2 className="text-base font-bold mr-3 text-white select-none">
+                        Take a screenshot:
+                    </h2>
+
+                    <button
+                        onClick={() => {
+                            const link = document.createElement("a");
+                            link.setAttribute("download", "canvas.png");
+                            link.setAttribute(
+                                "href",
+                                canvas.domElement
+                                    .toDataURL("image/png")
+                                    .replace("image/png", "image/octet-stream")
+                            );
+                            link.click();
+                        }}
+                        className="rounded-md border px-4 py-1 border-white text-white"
+                    >
+                        Download
+                    </button>
                 </div>
             </div>
             {floorsArr.map((item, count) => (
@@ -211,7 +232,6 @@ export default function Controls({
                                 };
                                 const possibleBalconies =
                                     findPossibleBalconies(newFloorInfo);
-                                console.log("inslider", event.target.value);
                                 handleFloorInfo({
                                     ...newFloorInfo,
                                     balcony: possibleBalconies,
@@ -252,7 +272,6 @@ export default function Controls({
                                 };
                                 const possibleBalconies =
                                     findPossibleBalconies(newFloorInfo);
-                                console.log("inslider", event.target.value);
 
                                 handleFloorInfo({
                                     ...newFloorInfo,

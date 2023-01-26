@@ -2,7 +2,6 @@ import { Canvas } from "@react-three/fiber";
 import { useRef, createContext, useState, useContext } from "react";
 import { OrbitControls } from "@react-three/drei";
 import CustomStage from "./CustomStage";
-import { useControls } from "leva";
 import StairGroup from "./StairGroup";
 
 export const StairsContext = createContext({
@@ -23,6 +22,7 @@ export const ControlsContext = createContext({
 });
 export default function Viewer({
     value,
+    setCanvas,
     shadows,
     contactShadow,
     autoRotate,
@@ -64,16 +64,13 @@ export default function Viewer({
     //     },
     // });
 
-    const { floors } = useControls({
-        floors: true,
-    });
-
     return (
         <Canvas
             // gl={{ preserveDrawingBuffer: true }}
             shadows
             frameloop="demand"
             camera={{ position: [0, 1, 1], fov: 80 }}
+            gl={{ preserveDrawingBuffer: true }}
         >
             <ambientLight intensity={0.5} />
             <OrbitControls ref={controlsRef} />
@@ -89,7 +86,7 @@ export default function Viewer({
                 <StairsContext.Provider value={stairsValue}>
                     <ControlsContext.Provider value={value}>
                         <StairGroup
-                            floors={floors}
+                            setCanvas={setCanvas}
                             numFloors={value.numFloors}
                         />
                     </ControlsContext.Provider>

@@ -12,6 +12,7 @@ export default function Result() {
         environment: "city", // ['', 'sunset', 'dawn', 'night', 'warehouse', 'forest', 'apartment', 'studio', 'city', 'park', 'lobby']
     };
     const [numFloors, setNumFloors] = useState(1);
+    const [screenshot, setScreenshot] = useState();
     const [revealFrame, setRevealFrame] = useState(false);
     const [floorInfo, setFloorInfo] = useState({
         xSize: { 0: 0, 1: 0 },
@@ -27,6 +28,7 @@ export default function Result() {
         floorInfo: floorInfo,
         setFloorInfo: setFloorInfo,
     };
+
     return (
         <div className="flex h-full overflow-hidden">
             <div className="w-4/12 h-full overflow-auto bg-slate-900">
@@ -37,10 +39,15 @@ export default function Result() {
                     handleNumFloors={(data) => setNumFloors(data)}
                     handleFloorInfo={(data) => setFloorInfo(data)}
                     handleRevealFrame={(data) => setRevealFrame(data)}
+                    canvas={screenshot}
                 />
             </div>
             <div className="w-8/12 h-full">
-                <Viewer value={controlsValue} {...settings} />
+                <Viewer
+                    value={controlsValue}
+                    setCanvas={(value) => setScreenshot(value)}
+                    {...settings}
+                />
             </div>
         </div>
     );

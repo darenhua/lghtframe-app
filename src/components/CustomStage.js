@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import { ContactShadows } from "@react-three/drei";
-import { useControls } from "leva";
 
 const presets = {
     rembrandt: {

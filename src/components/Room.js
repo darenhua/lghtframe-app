@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 import { StairsContext } from "./Viewer";
@@ -7,7 +7,7 @@ import Frame from "./Frame";
 
 export default function Room({ position, floorNum, stairsNum }) {
     const defaultSize = 0;
-    const color = Math.floor(Math.random() * 16777215).toString(16);
+    const [reveal, setReveal] = useState(false);
     const { stairsSize, stairsCenter } = useContext(StairsContext);
     const { floorInfo, revealFrame } = useContext(ControlsContext);
     const houseTexture = useLoader(TextureLoader, "/TemplateGrid_orm.png");
@@ -24,14 +24,22 @@ export default function Room({ position, floorNum, stairsNum }) {
     const roomY = floorNum % 2 ? yTemp - 0.6 : yTemp;
     const roomZ =
         floorNum % 2
-            ? stairsCenter.z - (stairsSize.z + size) / 2 - stairsSize.z / 2 + 3
-            : (stairsSize.z + size) / 2 - stairsCenter.z + stairsSize.z / 2 - 3;
+            ? stairsCenter.z -
+              (stairsSize.z + size) / 2 -
+              stairsSize.z / 2 +
+              +2.8
+            : (stairsSize.z + size) / 2 -
+              stairsCenter.z +
+              stairsSize.z / 2 -
+              2.8;
     // const roomZ =
     //     floorNum % 2
     //         ? stairsCenter.z - (stairsSize.z + size) / 2 + 0.975
     //         : (stairsSize.z + size) / 2 - stairsCenter.z - 0.5075;
     const balcZ =
-        floorNum % 2 ? stairsSize.z : 3.6 + stairsSize.z + size + balcSize / 2;
+        floorNum % 2
+            ? -3.6 - stairsSize.z - size - balcSize / 2
+            : 3.6 + stairsSize.z + size + balcSize / 2;
 
     const allocateWindows = (windowSize = 2) => {
         const windowZStart =
@@ -65,17 +73,25 @@ export default function Room({ position, floorNum, stairsNum }) {
                 center={[stairsCenter.x, roomY, roomZ]}
                 size={[15, stairsSize.y, stairsSize.z + size]}
             />
-            <mesh position={[stairsCenter.x, roomY, roomZ]}>
-                <boxGeometry args={[15, stairsSize.y, stairsSize.z + size]} />
-                <meshStandardMaterial
-                    transparent={true}
-                    opacity={0.3}
-                    // color="#fff"
-                    color={`#${color}`}
-                    roughness={0.1}
-                    // map={revealFrame ? lghtframeTexture : houseTexture}
-                />
-            </mesh>
+            {!revealFrame && (
+                <mesh
+                    position={[stairsCenter.x, roomY, roomZ]}
+                    onPointerOver={(e) => setReveal(true)}
+                    onPointerOut={(e) => setReveal(false)}
+                >
+                    <boxGeometry
+                        args={[15.6, stairsSize.y, stairsSize.z + size + 0.6]}
+                    />
+                    <meshStandardMaterial
+                        transparent={true}
+                        opacity={reveal ? 0.3 : 1}
+                        // color="#fff"
+                        color={`#fff`}
+                        // roughness={0.1}
+                        // map={revealFrame ? lghtframeTexture : houseTexture}
+                    />
+                </mesh>
+            )}
             {floorInfo.balcony.value[floorNum - 2] && (
                 <mesh position={[stairsCenter.x, roomY, balcZ]}>
                     <boxGeometry args={[15, stairsSize.y, balcSize]} />

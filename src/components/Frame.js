@@ -49,9 +49,9 @@ export default function Frame({ center, size }) {
             centerY + centers[1],
             centerZ + centers[2],
         ];
-        const newSizeX = centers[0] === 0 ? sizeX : 0.5;
-        const newSizeY = centers[1] === 0 ? sizeY : 0.5;
-        const newSizeZ = centers[2] === 0 ? sizeZ : 0.5;
+        const newSizeX = centers[0] === 0 ? sizeX - 0.5 : 0.5;
+        const newSizeY = centers[1] === 0 ? sizeY - 0.5 : 0.5;
+        const newSizeZ = centers[2] === 0 ? sizeZ - 0.5 : 0.5;
         const size = [newSizeX, newSizeY, newSizeZ];
         return (
             <mesh position={pos} renderOrder={order}>
@@ -104,7 +104,7 @@ export default function Frame({ center, size }) {
             )}
             {barCenters.map((barZ) => {
                 const barCenter = [centerX - sizeX / 2, centerY, barZ];
-                const barSize = [0.5, sizeY, 0.5];
+                const barSize = [0.5, sizeY - 0.5, 0.5];
                 return (
                     <mesh position={barCenter}>
                         <boxGeometry args={barSize} />
@@ -118,7 +118,7 @@ export default function Frame({ center, size }) {
             })}
             {barCenters.map((barZ) => {
                 const barCenter = [centerX + sizeX / 2, centerY, barZ];
-                const barSize = [0.5, sizeY, 0.5];
+                const barSize = [0.5, sizeY - 0.5, 0.5];
                 return (
                     <mesh position={barCenter}>
                         <boxGeometry args={barSize} />
